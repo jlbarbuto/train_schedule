@@ -12,9 +12,6 @@ var config = {
 // Variables =========================================
 var database = firebase.database();
 
-// Functions =========================================
-
-
 // Main Process ======================================
 
 // Submit click stores user input to the object newTrain, pushes the object to firebase, and clears the inputs
@@ -42,6 +39,7 @@ $("#add-train-btn").on("click", function(event){
 
 });
 
+//When a child is added in Firebase, this function runs
 database.ref().on("child_added", function(child, prevChildKey){
     var trainName = child.val().name;
     var trainDestination = child.val().destination;
@@ -49,37 +47,28 @@ database.ref().on("child_added", function(child, prevChildKey){
     var trainFrequency = child.val().frequency;
 
     //math to get minutes until next train and next train's time
-    var hours = trainFirst.substring(0,2);
-    var minutes = trainFirst.substring(3,5);
-    var seconds = (hours*60*60) + (minutes*60);
+    var hours = trainFirst.substring(0,2); //determines the hour of the first train's departure (must be two digits)
+    var minutes = trainFirst.substring(3,5); //detrmines the minutes of the first train's departure (must be the last two characters)
+    var seconds = (hours*60*60) + (minutes*60); //convrets the time to seconds
   
-    var firstUnix = moment().startOf('day').format('X');
-    firstUnix = parseInt(firstUnix);
-    firstUnix = firstUnix + seconds;
-    var currentUnix = moment().unix();
-    console.log(firstUnix, currentUnix);
+    var firstUnix = moment().startOf('day').format('X'); //pulls the beginning the current day in unix form
+    var firstUnix = parseInt(firstUnix); //converts the format to an interger
+    firstUnix = firstUnix + seconds; //adds the seconds until the first train's departure
+    var currentUnix = moment().unix(); //current time in unix form
 
     var diff = currentUnix - firstUnix;
-    if (diff<=0){
+    if (diff<=0){ //if the difference of the two numbers is negative, the first train has not left yet
         var timeLeft = Math.ceil((firstUnix - currentUnix)/60);
         trainMinUntil = timeLeft;
         trainNext = trainFirst;
-    } else{
+    } else{ //otherwise, frequency is used to determine when the next train will leave and converts back to minutes
         var remain = diff % (trainFrequency*60);
         remain = Math.ceil(remain/60);
-        console.log(remain);
-
         var trainMinUntil = trainFrequency - remain;
         var trainNext = moment().add(trainMinUntil, 'm').format("HH:mm");
-        console.log(trainMinUntil);
-        console.log(trainNext);
     };
 
-    
-
-
-    console.log(trainName, trainDestination, trainFirst, trainFrequency);
-
+    //Information is appended to the table on the site page
     $("#train-table").append(
         `<tr>
             <td>${trainName}</td>

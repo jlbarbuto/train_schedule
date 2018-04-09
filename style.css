@@ -1,0 +1,23 @@
+.main-title{
+    font-size: 70px;
+}
+
+.card-header,.main-title{
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.card-header{
+    font-size: 25px;
+}
+
+.content{
+    margin-top: 30px;
+}
+
+.btn{
+    background-color: dimgrey;
+}
+
+.btn:hover{
+    background-color: black;
+}
